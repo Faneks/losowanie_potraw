@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Losowanie Potraw</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+    input { padding: 5px; margin: 5px 0; }
+    button { padding: 10px 20px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Losowanie Potraw</h1>
+
+  <h2>Dodaj potrawy</h2>
+  <input type="text" id="dish-input" placeholder="Wpisz nazwę potrawy">
+  <button onclick="addDish()">Dodaj potrawę</button>
+  <ul id="dish-list"></ul>
+
+  <h2>Ustawienia uczestników</h2>
+  <label for="participant-count">Liczba uczestników:</label>
+  <input type="number" id="participant-count" min="1" max="10" value="2">
+  <button onclick="setParticipants()">Ustaw uczestników</button>
+  <div id="participant-names" style="margin-top: 10px;"></div>
+
+  <h2>Losowanie</h2>
+  <button onclick="startDraw()">Rozpocznij losowanie</button>
+  <table id="result-table">
+    <thead>
+      <tr>
+        <th>Uczestnik</th>
+        <th>Potrawa</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const dishes = [];
+    const participants = [];
+
+    function addDish() {
+      const input = document.getElementById("dish-input");
+      const dish = input.value.trim();
+      if (dish && dishes.length < 10) {
+        dishes.push(dish);
+        input.value = '';
+        updateDishList();
+      } else {
+        alert("Nie można dodać więcej niż 10 potraw.");
+      }
+    }
+
+    function updateDishList() {
+      const list = document.getElementById("dish-list");
+      list.innerHTML = dishes.map(d => `<li>${d}</li>`).join('');
+    }
+
+    function setParticipants() {
+      const count = document.getElementById("participant-count").value;
+      const namesContainer = document.getElementById("participant-names");
+      participants.length = 0; // Reset listy uczestników
+      namesContainer.innerHTML = '';
+      for (let i = 0; i < count; i++) {
+        namesContainer.innerHTML += `
+          <label>Uczestnik ${i + 1}:</label>
+          <input type="text" placeholder="Wpisz nazwę" id="participant-${i}">
+          <br>
+        `;
+      }
+    }
+
+    function startDraw() {
+      const count = document.getElementById("participant-count").value;
+      participants.length = 0;
+      for (let i = 0; i < count; i++) {
+        const input = document.getElementById(`participant-${i}`);
+        const name = input.value.trim() || `Uczestnik ${i + 1}`;
+        participants.push(name);
+      }
+
+      if (dishes.length < participants.length) {
+        alert("Za mało potraw do wylosowania!");
+        return;
+      }
+
+      const shuffledDishes = [...dishes].sort(() => 0.5 - Math.random());
+      const resultTable = document.getElementById("result-table").querySelector("tbody");
+      resultTable.innerHTML = participants.map((name, index) => `
+        <tr>
+          <td>${name}</td>
+          <td>${shuffledDishes[index]}</td>
+        </tr>
+      `).join('');
+    }
+  </script>
+</body>
+</html>
